@@ -1,39 +1,50 @@
 <?php
+session_start();
 
 $login = 0;
 $invalid = 0;
 
-// to get the detils of user from form using post method..
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
+// handle POST login
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  try {
     include 'SignupDatabase.php';
+  } catch (Throwable $t) {
+    // if DB bootstrap fails we surface a generic error
+    error_log('DB bootstrap failed: ' . $t->getMessage());
+    $invalid = 1;
+  }
 
-    $name = $_POST['name'];
-    $password = $_POST['password'];
+  $name = trim((string)($_POST['name'] ?? ''));
+  $password = (string)($_POST['password'] ?? '');
 
-    $sql = "Select * from `signup` where
-    name = '$name' and password = '$password'";
+  if ($name === '' || $password === '') {
+    $invalid = 1;
+  } elseif (isset($connect)) {
+    // use prepared statements for safety
+    $stmt = $connect->prepare('SELECT id, name FROM `signup` WHERE name = ? AND password = ?');
+    if ($stmt) {
+      $stmt->bind_param('ss', $name, $password);
+      $stmt->execute();
+      // use store_result for compatibility when get_result() is unavailable
+      $stmt->store_result();
 
-    $result = mysqli_query($connect, $sql);
-    if($result){
+      if ($stmt->num_rows > 0) {
+        $login = 1;
+        $_SESSION['name'] = $name;
+        header('Location: index.php');
+        exit();
+      } else {
+        $invalid = 1;
+      }
 
-        $num = mysqli_num_rows($result);
-
-        if($num > 0){
-            // echo 'Welcome Back again. $username ';
-            $login = 1;
-            //using session to save the details of the user for a specific time in it's browser..
-            session_start();
-            $_SESSION['name'] = $name;
-            header('location:index.php');
-        } else{
-            // echo 'Invalid! Please sign up first.';
-            $invalid = 1;
-        }
+      $stmt->close();
+    } else {
+      error_log('Failed to prepare login statement: ' . $connect->error);
+      $invalid = 1;
     }
-
+  }
 }
-
-?>    
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -145,32 +156,40 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   </style>
 </head>
 <body>
-  <?php 
+  <?php
 
-  if($invalid){
+  if ($invalid) {
       echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <strong>Invalid!</strong> Seems like You did not have Account.
+      <strong>Invalid!</strong> Username or password are incorrect.
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>';
-
-      // redirect after 3 seconds using JS
-      echo "<script>
-      setTimeout(function(){
-          window.location.href = 'index.php';
-      }, 3000);
-      </script>";
   }
 
-  ?>
-
-  <?php 
-
-  if($login){
+  if ($login) {
       echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
       <strong>Success!</strong> You have Logged-In.
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>';
   }
-  
-  //Import PHPMailer classes into the global namespace
+  ?>
+
+  <!-- Login form -->
+  <div class="container">
+    <div class="form_area p-6">
+      <h2 class="title">Welcome back</h2>
+      <p class="sub_title">Sign in to your account</p>
+      <form action="login.php" method="post" class="d-flex flex-column align-items-center">
+        <div class="form_group">
+          <input type="text" name="name" placeholder="Username" required class="form_style" value="<?php echo htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES); ?>">
+        </div>
+        <div class="form_group">
+          <input type="password" name="password" placeholder="Password" required class="form_style">
+        </div>
+        <button type="submit" class="btn">Log In</button>
+        <div class="mb-4">Don't have an account? <a class="link" href="index.php">Sign up</a></div>
+      </form>
+    </div>
+  </div>
+  </body>
+  </html>
 
