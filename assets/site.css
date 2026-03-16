@@ -1,0 +1,183 @@
+/* Shared site styles (kept small; Tailwind handles most UI) */
+
+:root {
+  --grid-line: rgba(114, 114, 114, 0.28);
+  --bg: #a9d37c;
+  --chat-grey: #f5f5f5;
+  --chat-blue: #3d88f9;
+  --chat-black: #1a1a1a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(0deg, transparent 24%, var(--grid-line) 25%, var(--grid-line) 26%, transparent 27%, transparent 74%, var(--grid-line) 75%, var(--grid-line) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, var(--grid-line) 25%, var(--grid-line) 26%, transparent 27%, transparent 74%, var(--grid-line) 75%, var(--grid-line) 76%, transparent 77%, transparent);
+  background-size: 55px 55px;
+}
+
+/* Simple image slider */
+.ph-slider {
+  width: min(92%, 680px);
+  margin-inline: auto;
+  border: 2px solid rgba(6, 95, 70, 0.6);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(6px);
+}
+.ph-slider img {
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+  display: none;
+}
+.ph-slider img.is-active {
+  display: block;
+}
+
+/* Chat widget (no nested CSS) */
+body.chat-open .ph-chat-window {
+  display: flex;
+}
+
+.ph-chat-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+  background: var(--chat-black);
+  color: #fff;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 10px 25px;
+}
+.ph-chat-button:hover {
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 12px 28px;
+}
+.ph-chat-button svg {
+  width: 28px;
+  height: 28px;
+}
+
+.ph-chat-window {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 60;
+  width: min(94vw, 380px);
+  height: min(74vh, 620px);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 8px 22px;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.ph-chat-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--chat-black);
+  color: #fff;
+}
+
+.ph-chat-topbar button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+.ph-chat-topbar button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ph-chat-messages {
+  flex: 1;
+  padding: 12px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ph-chat-bubble {
+  width: fit-content;
+  max-width: 84%;
+  border-radius: 16px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.ph-chat-bubble--bot {
+  background: var(--chat-grey);
+  color: #111827;
+  border-top-left-radius: 6px;
+}
+.ph-chat-bubble--user {
+  background: var(--chat-blue);
+  color: #fff;
+  align-self: flex-end;
+  border-top-right-radius: 6px;
+}
+
+.ph-chat-input {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid rgba(17, 24, 39, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+}
+.ph-chat-input input {
+  flex: 1;
+  height: 42px;
+  border-radius: 999px;
+  padding: 0 14px;
+  background: var(--chat-grey);
+  border: 1px solid rgba(17, 24, 39, 0.12);
+}
+.ph-chat-input button {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--chat-blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  border: 0;
+  cursor: pointer;
+}
+.ph-chat-input button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ph-chat-loader {
+  width: 44px;
+  opacity: 0.45;
+  aspect-ratio: 4;
+  background: radial-gradient(circle closest-side, #111827 90%, #0000) 0 / calc(100% / 3) 100% space;
+  clip-path: inset(0 100% 0 0);
+  animation: phChatDots 1.5s steps(4) infinite;
+}
+@keyframes phChatDots {
+  to {
+    clip-path: inset(0 -34% 0 0);
+  }
+}
+

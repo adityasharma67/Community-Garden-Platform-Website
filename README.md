@@ -26,9 +26,16 @@ The application reads configuration exclusively from environment variables so se
 
 ## Running Locally
 
-1. Create the `organization` table in your database:
+1. Create the database tables in your MySQL/MariaDB database (example: database name `plant_hub`):
 
 ```sql
+CREATE TABLE IF NOT EXISTS signup (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE organization (
     id INT AUTO_INCREMENT PRIMARY KEY,
     orgname VARCHAR(255) NOT NULL UNIQUE,
@@ -45,6 +52,18 @@ CREATE TABLE organization (
    ```
    php -S 127.0.0.1:8000
    ```
-4. Navigate to `http://127.0.0.1:8000/Contact.php`.
+4. Navigate to:
+   - `http://127.0.0.1:8000/` (homepage)
+   - `http://127.0.0.1:8000/signup.php` (create account)
+   - `http://127.0.0.1:8000/Contact.php` (contact form)
+
+## Optional: Chat assistant (Gemini)
+
+If you want the on-site assistant to answer using Gemini, set:
+
+- `GEMINI_API_KEY`
+- `GEMINI_MODEL` (optional; default: `gemini-1.5-flash`)
+
+If not set, the assistant falls back to built-in helpful replies (no external calls).
 
 If PHPMailer is not installed the form will still work, but the confirmation email is skipped and the reason is logged to the PHP error log.
